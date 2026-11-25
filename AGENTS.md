@@ -75,6 +75,20 @@ whether a parameter is functional, leave it and say so.
 The clipboard watcher in `Sources/main.swift` has no automated test. If you change it,
 say so and ask the user to copy a tracked URL and paste it.
 
+## Trying a rule change on this Mac
+
+Check how cleanpaste is installed with `brew services list | grep cleanpaste`.
+
+- **Installed with curl, or not installed:** run `./install.sh`.
+- **Installed with Homebrew:** `./install.sh` refuses, so two watchers never run at once.
+  Swap temporarily:
+  1. `brew services stop cleanpaste && ./install.sh`
+  2. Ask the user to copy the URL and paste it.
+  3. Switch back: `./install.sh --uninstall && brew services start cleanpaste`
+
+To make the change permanent for everyone, commit it and release it (below). Homebrew
+users then run `brew upgrade cleanpaste`.
+
 ## Releasing
 
 Rule changes reach users only through a release.

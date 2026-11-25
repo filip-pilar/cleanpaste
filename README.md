@@ -95,8 +95,8 @@ Give your agent the URL:
 ```text
 Clone https://github.com/filip-pilar/cleanpaste. This copied URL kept its tracking
 parameters: <paste URL>
-Follow AGENTS.md to add a rule for it and run ./test.sh. Then open a pull request,
-or run ./install.sh to use the change on this Mac now.
+Follow AGENTS.md to add a rule for it, run ./test.sh, and try it on this Mac as
+AGENTS.md describes. Then open a pull request.
 ```
 
 The repo is laid out for this: rules are data in one file, test cases are data in another,
