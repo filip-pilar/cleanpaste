@@ -1,0 +1,32 @@
+name: Missed a tracker
+description: A copied link kept its tracking parameters, or a cleaned link stopped working.
+title: "Tracker: "
+labels: ["rules"]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: The link as you copied it
+      description: Swap anything personal (names, emails, account IDs) for placeholders.
+      placeholder: https://example.com/page?id=1&tracker=abc
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: What it should become
+      placeholder: https://example.com/page?id=1
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What went wrong
+      options:
+        - A tracking parameter was left in
+        - Something was removed that the page needs
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Where you copied it from (app, site, share button), if it helps.

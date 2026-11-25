@@ -31,11 +31,15 @@ func cleanURL(_ input: String) -> String? {
     var path = beforeFragment[..<(queryStart ?? beforeFragment.endIndex)]
     let query = queryStart.map { beforeFragment[beforeFragment.index(after: $0)...] }
 
+    if untouchedHosts.contains(where: { $0.matches(host) }) { return nil }
+    let lowered = beforeFragment.lowercased()
+    if untouchedURLWords.contains(where: lowered.contains) { return nil }
+
     let rules = siteRules.filter { $0.matches(host) }
     var changed = false
 
     // A redirect wrapper: hand back the real destination, itself cleaned.
-    if let query, let redirect = rules.compactMap(\.unwrapRedirect).first(where: { $0.path == path }) {
+    if let query, let redirect = rules.compactMap(\.unwrapRedirect).first(where: { $0.path == path || ($0.path == "/" && path.isEmpty) }) {
         for pair in query.split(separator: "&") {
             let parts = pair.split(separator: "=", maxSplits: 1)
             guard parts.count == 2, redirect.params.contains(parts[0].lowercased()),

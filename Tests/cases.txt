@@ -56,6 +56,37 @@ keep  https://example.com/url?url=https://other.com/&q=1
 strip https://x.com/someone/status/1234567890?a=AbCdEf123 https://x.com/someone/status/1234567890
 keep  https://x.com/search?q=swift&src=typed_query&f=live
 
+# Redirect wrappers
+strip https://l.facebook.com/l.php?u=https%3A%2F%2Fexample.com%2Fpage%3Fid%3D1%26fbclid%3Dx&h=AT0abc https://example.com/page?id=1
+strip https://l.instagram.com/?u=https%3A%2F%2Fexample.com%2F%3Futm_source%3Dig&e=AT0 https://example.com/
+strip https://www.youtube.com/redirect?event=video_description&redir_token=abc&q=https%3A%2F%2Fexample.com%2Fshop&v=dQw4 https://example.com/shop
+strip https://www.linkedin.com/redir/redirect?url=https%3A%2F%2Fexample.com%2Fjob&urlhash=abc https://example.com/job
+strip https://www.linkedin.com/safety/go?url=https%3A%2F%2Fexample.com%2F&trk=flagship https://example.com/
+keep  https://www.youtube.com/redirect?q=notaurl
+
+# Trackers found in ClearURLs, AdGuard and Firefox lists
+strip https://example.com/app?%24deep_link=true&%243p=a_custom&id=5 https://example.com/app?id=5
+strip https://example.com/p?elqTrackId=abc&elq=123&id=9&adj_campaign=x&af_adset=y https://example.com/p?id=9
+strip https://example.com/a?fb_action_ids=1&fb_source=feed&action_object_map=%5B1%5D&k=v https://example.com/a?k=v
+strip https://example.com/a?cmpid=nl&xtor=EPR-1&itm_source=home&page=2 https://example.com/a?page=2
+strip https://play.google.com/store/apps/details?id=com.example.app&pcampaignid=web_share&hl=en https://play.google.com/store/apps/details?id=com.example.app&hl=en
+strip https://www.amazon.com/dp/B08N5WRWNW?spIA=1&dchild=1&smid=A1B2&th=1 https://www.amazon.com/dp/B08N5WRWNW?smid=A1B2&th=1
+strip https://www.netflix.com/title/80100172?trackId=255824129&tctx=0 https://www.netflix.com/title/80100172
+strip https://www.tiktok.com/@u/video/123?share_app_name=x&timestamp=1&user_id=2&lang=en https://www.tiktok.com/@u/video/123?lang=en
+strip https://www.msn.com/en-us/news/article?ocid=msedgntp&cvid=abc&ei=1 https://www.msn.com/en-us/news/article?ei=1
+strip https://x.com/someone/status/1?cn=abc https://x.com/someone/status/1
+strip https://github.com/o/r/pull/1?email_token=abc&email_source=notifications#issuecomment-1 https://github.com/o/r/pull/1#issuecomment-1
+keep  https://www.netflix.com/browse?jbv=80100172
+keep  https://example.com/?pcampaignid=1&ocid=2&cn=3&trackid=4
+keep  https://example.com/?af_dp=app%3A%2F%2Fopen
+
+# Never touched
+keep  https://example.com/unsubscribe?ck_subscriber_id=123&mkt_tok=abc
+keep  https://pages.example.com/emailWebview?mkt_tok=abc&utm_source=x
+keep  https://example.com/prefs?action=unsubscribe&utm_source=email
+keep  https://appdistribution.firebase.dev/i/abc123?utm_source=firebase-console
+keep  https://urldefense.com/v3/__https://example.com/?utm_source=x__;!!abc$
+
 # Left alone
 keep  https://www.amazon.com/s?keywords=usb+cable
 keep  https://support.apple.com/guide?at=1&ct=2

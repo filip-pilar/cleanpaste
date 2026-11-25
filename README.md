@@ -72,7 +72,13 @@ Then ask me to copy a link with tracking parameters and paste it, to check it wo
   and `a` on X. The same names on other sites are left alone.
 - **Referrer tags:** `?ref=chatgpt.com` goes, `?ref=main` stays.
 
-The complete list is one file: [Sources/Rules.swift](Sources/Rules.swift).
+- **Redirect wrappers are unwrapped:** Google, Facebook, Instagram, YouTube and LinkedIn
+  outbound links become the real destination.
+- **Links that need their parameters are never touched:** unsubscribe links, Firebase
+  tester invites, Proofpoint-protected links and a few file-transfer sites.
+
+The complete list is one file: [Sources/Rules.swift](Sources/Rules.swift). It is our own,
+informed by the ClearURLs, AdGuard and Firefox tracker lists.
 
 ## Footprint
 

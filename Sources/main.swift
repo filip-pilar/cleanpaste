@@ -45,12 +45,15 @@ final class Watcher {
     /// Tries left for the current copy. An app bumps the change counter first and writes
     /// the data a moment later, so a poll that lands in between gets one retry.
     private var attemptsLeft = 0
-    private var ticksSinceQuery = 0
+    /// Starts full so the first tick queries the clipboard straight away.
+    private var ticksSinceQuery = quietQueryEvery
     private let anyInput = CGEventType(rawValue: ~0)!
 
     init(pasteboard: NSPasteboard) {
         self.pasteboard = pasteboard
-        lastChange = pasteboard.changeCount
+        // No baseline: whatever is on the clipboard at launch counts as a new copy, so a
+        // link copied while the agent was starting (at login, after an upgrade) is cleaned.
+        lastChange = -1
         timer = DispatchSource.makeTimerSource(queue: queue)
     }
 

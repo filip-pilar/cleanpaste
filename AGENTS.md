@@ -16,6 +16,9 @@ data edits and one command.
    | A tracker only on one site, or a short or generic name (`s`, `t`, `ref`, `a`) | that site's entry in `siteRules`, or a new entry |
    | A generic name that only tracks for certain values (`ref=chatgpt.com`) | the value goes in `referrerValues` |
 
+   | A link whose "tracker" does real work (unsubscribe, signed or invite links) | `untouchedURLWords` or `untouchedHosts` |
+   | A redirect wrapper (`l.facebook.com/l.php?u=...`) | a `SiteRule` with `unwrapRedirect` |
+
    When unsure, use a site rule. A parameter wrongly added to `globalParams` breaks links
    on sites that use the same name for something real.
 
@@ -42,10 +45,17 @@ SiteRule(hosts: [.domain("x.com"), .domain("twitter.com")],
 - `.brandRoot("google")` matches only the bare or `www` host, not `docs.google.com`.
 - Optional fields: `prefixes` (name prefixes), `stripRefSegments` (drop `/ref=...` path
   segments), `unwrapRedirect` (replace a redirect page with its destination).
+- `unwrapRedirect` takes one path, so a site with two redirect pages needs two rules (see
+  LinkedIn).
 
 Check for an existing entry for the site before adding a new one.
 
 ## What not to strip
+
+Good references for finding trackers: the ClearURLs rules, AdGuard's URL tracking filter and
+Firefox's query-stripping list. Use them to find names, then write the rule here yourself;
+do not copy their regexes (ClearURLs is LGPL). Prefer names that appear in more than one
+list or come from a major platform.
 
 Leave anything the page needs to show the same content: ids, search queries, page
 numbers, language, timestamps, variant selectors, gift or unlock codes. If you cannot tell

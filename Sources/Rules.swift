@@ -3,6 +3,7 @@
 //
 // All names are matched case-insensitively, so write them in lowercase.
 //
+//   untouched...     URLs that are never changed at all
 //   globalParams     exact names stripped on every site
 //   globalPrefixes   name prefixes stripped on every site
 //   referrerParams   generic names stripped only when the value is in referrerValues
@@ -13,21 +14,41 @@
 //   .brand("amazon")     any subdomain and any country suffix (www.amazon.co.uk)
 //   .brandRoot("google") bare or www host only (www.google.de, not docs.google.com)
 
+/// URLs that are never changed, because their "tracking" parameters do real work.
+/// A URL is left alone when its path or query contains one of these words (lowercase)...
+let untouchedURLWords: [String] = ["unsubscribe", "emailwebview"]
+/// ...or its host matches one of these.
+let untouchedHosts: [HostPattern] = [
+    .domain("urldefense.com"),               // Proofpoint-wrapped links are signed
+    .domain("appdistribution.firebase.dev"), // Firebase tester invites
+    .brand("firebaseappdistribution"),
+    .domain("sendgb.com"), .domain("transfernow.net"), .domain("plex.tv"),
+]
+
 /// Stripped on every site.
 let globalParams: Set<String> = [
     // Ad click IDs
     "fbclid", "gclid", "gclsrc", "dclid", "gbraid", "wbraid", "gad_source", "gad_campaignid",
     "msclkid", "yclid", "ysclid", "twclid", "ttclid", "li_fat_id", "sccid", "rdt_cid", "epik",
     "irclickid", "irgwc", "cjevent", "cjdata", "awc", "zanpid", "rb_clickid", "wickedid",
-    "s_kwcid", "ef_id", "unicorn_click_id",
+    "s_kwcid", "ef_id", "unicorn_click_id", "ir_campaignid", "ir_adid", "ir_partnerid",
+    // Facebook share and action tracking
+    "fb_action_ids", "fb_action_types", "fb_source", "fb_ref", "action_object_map",
+    "action_type_map", "action_ref_map",
+    // App attribution SDKs (Branch, AppsFlyer, Adjust)
+    "$deep_link", "$3p", "$original_url", "af_xp", "af_ad", "af_adset", "af_click_lookback",
+    "af_force_deeplink", "adj_label", "adj_campaign", "adj_creative", "adjust_tracker",
+    "adjust_campaign", "adjust_adgroup", "adjust_creative", "adjust_referrer",
     // Email and marketing platforms
     "mc_cid", "mc_eid", "mc_tc", "_hsenc", "_hsmi", "__hssc", "__hstc", "__hsfp", "hsctatracking",
     "mkt_tok", "vero_id", "vero_conv", "oly_anon_id", "oly_enc_id", "ml_subscriber",
     "ml_subscriber_hash", "ck_subscriber_id", "_kx", "__s", "_bhlid", "sms_click", "sms_source",
-    "sms_uph",
+    "sms_uph", "elqtrackid", "elqtrack", "elq", "elqaid", "elqat", "elqcampaignid", "elqak",
+    "adobe_mc_ref", "adobe_mc_sdid",
     // Analytics and attribution
     "_ga", "_gl", "s_cid", "_openstat", "srsltid", "_branch_match_id", "_branch_referrer",
     "wt_mc", "wt_zmc", "ns_mchannel", "ns_source", "ns_campaign", "ns_linkname", "ns_fee",
+    "cmpid", "xtor", "itm_source", "itm_medium", "itm_campaign", "itm_content", "itm_term",
     // Social share IDs
     "igshid", "igsh", "mibextid", "ref_src", "ref_url", "__twitter_impression",
     "guccounter", "guce_referrer", "guce_referrer_sig",
@@ -51,29 +72,42 @@ let globalPrefixes: [String] = ["utm_", "pk_", "mtm_", "piwik_", "hsa_", "stm_"]
 let siteRules: [SiteRule] = [
     SiteRule(hosts: [.domain("youtube.com"), .domain("youtu.be")],
              params: ["si", "pp", "feature"]),
+    SiteRule(hosts: [.domain("youtube.com")], params: [],
+             unwrapRedirect: (path: "/redirect", params: ["q"])),
     SiteRule(hosts: [.domain("spotify.com")],
              params: ["si", "nd"]),
     SiteRule(hosts: [.domain("x.com"), .domain("twitter.com")],
-             params: ["s", "t", "a", "cxt"]),
+             params: ["s", "t", "a", "cxt", "cn"]),
     SiteRule(hosts: [.domain("instagram.com"), .domain("threads.net"), .domain("threads.com")],
              params: ["xmt"]),
+    SiteRule(hosts: [.domain("l.instagram.com")], params: [],
+             unwrapRedirect: (path: "/", params: ["u"])),
     SiteRule(hosts: [.domain("facebook.com")],
              params: ["__tn__", "__cft__[0]", "__xts__[0]", "rdid", "share_url", "fref", "hc_ref",
-                      "refsrc", "sfnsn", "wtsid", "paipv", "eav"]),
+                      "refsrc", "sfnsn", "wtsid", "paipv", "eav", "ref", "comment_tracking",
+                      "action_history", "rdc", "rdr", "_rdr", "dti", "ls_ref"]),
+    SiteRule(hosts: [.domain("l.facebook.com"), .domain("lm.facebook.com")], params: [],
+             unwrapRedirect: (path: "/l.php", params: ["u"])),
     SiteRule(hosts: [.domain("tiktok.com")],
              params: ["_t", "_r", "_d", "is_from_webapp", "is_copy_url", "sender_device",
                       "share_app_id", "share_link_id", "share_item_id", "social_sharing", "tt_from",
-                      "u_code", "preview_pb", "sec_user_id", "checksum", "web_id"]),
+                      "u_code", "preview_pb", "sec_user_id", "checksum", "web_id", "timestamp",
+                      "user_id", "share_app_name", "share_iid"]),
     SiteRule(hosts: [.domain("linkedin.com")],
              params: ["trk", "trackingid", "refid", "lipi", "licu", "rcm", "trkinfo", "trkemail",
                       "midtoken", "midsig"]),
+    SiteRule(hosts: [.domain("linkedin.com")], params: [],
+             unwrapRedirect: (path: "/redir/redirect", params: ["url"])),
+    SiteRule(hosts: [.domain("linkedin.com")], params: [],
+             unwrapRedirect: (path: "/safety/go", params: ["url"])),
     SiteRule(hosts: [.domain("reddit.com")],
              params: ["share_id", "rdt", "ref", "ref_source", "ref_campaign", "correlation_id"]),
     SiteRule(hosts: [.brand("amazon")],
              params: ["ref", "ref_", "qid", "sr", "sprefix", "crid", "dib", "dib_tag", "_encoding",
                       "content-id", "tag", "ascsubtag", "linkcode", "linkid", "camp",
-                      "creative", "creativeasin"],
-             prefixes: ["pf_rd_", "pd_rd_"],
+                      "creative", "creativeasin", "spia", "ms3_c", "refrid", "aaxitk", "dchild",
+                      "social_share", "starsleft", "skiptwisterog"],
+             prefixes: ["pf_rd_", "pd_rd_", "cv_ct_", "sb-ci-"],
              stripRefSegments: true),
     SiteRule(hosts: [.domain("imdb.com")],
              params: ["ref_"], prefixes: ["pf_rd_"], stripRefSegments: true),
@@ -82,7 +116,9 @@ let siteRules: [SiteRule] = [
                       "gs_lcrp", "gs_l", "sclient", "uact", "iflsig", "biw", "bih", "dpr", "ictx",
                       "sa", "usg", "oq", "aqs", "sourceid", "rlz", "source", "client", "fbs",
                       "sstk", "cshid", "zx", "no_sw_cr", "aep", "ntc", "mstk", "csuir", "pccc",
-                      "rct", "opi", "gs_ssp", "entry", "g_ep"],
+                      "rct", "opi", "gs_ssp", "entry", "g_ep", "esrc", "cd", "cad", "atyp", "vet",
+                      "dcr", "pcampaignid"],
+             prefixes: ["gfe_", "gws_"],
              unwrapRedirect: (path: "/url", params: ["url", "q"])),
     SiteRule(hosts: [.domain("bing.com")],
              params: ["form", "cvid", "pq", "qs", "sc", "sk", "sp", "ghsh", "ghacc", "ghpl", "ghc",
@@ -93,7 +129,9 @@ let siteRules: [SiteRule] = [
     SiteRule(hosts: [.brand("aliexpress"), .brand("alibaba"), .brand("taobao"), .brand("tmall")],
              params: ["spm", "scm", "pvid", "algo_pvid", "algo_exp_id", "aff_fcid", "aff_fsk",
                       "aff_platform", "aff_trace_key", "terminal_id", "afsmartredirect", "pdp_npi",
-                      "pdp_ext_f", "curpagelogid", "search_p4p_id", "ws_ab_test", "btsid"]),
+                      "pdp_ext_f", "curpagelogid", "search_p4p_id", "ws_ab_test", "btsid",
+                      "algo_expid", "gps-id", "aff_request_id", "mall_affr"],
+             prefixes: ["scm"]),
     SiteRule(hosts: [.domain("bilibili.com")],
              params: ["spm_id_from", "vd_source", "from_source", "from_spmid", "share_source",
                       "share_medium", "share_plat", "share_session_id", "share_tag", "share_times",
@@ -104,10 +142,10 @@ let siteRules: [SiteRule] = [
              prefixes: ["ga_"]),
     SiteRule(hosts: [.domain("walmart.com")],
              params: ["athbdg", "athcpid", "athpgid", "athcgid", "athznid", "athieid", "athstid",
-                      "athguid", "athancid", "athena"]),
+                      "athguid", "athancid", "athena", "u1"]),
     SiteRule(hosts: [.domain("music.apple.com"), .domain("podcasts.apple.com"),
                      .domain("apps.apple.com"), .domain("books.apple.com"), .domain("tv.apple.com")],
-             params: ["itsct", "itscg", "at", "ct", "pt", "uo"]),
+             params: ["itsct", "itscg", "at", "ct", "pt", "uo"], prefixes: ["ign-itsc"]),
     SiteRule(hosts: [.domain("nytimes.com")],
              params: ["smid", "smtyp", "emc", "partner", "impression_id"]),
     SiteRule(hosts: [.domain("medium.com")],
@@ -118,4 +156,22 @@ let siteRules: [SiteRule] = [
              params: ["tt_medium", "tt_content", "tt_email_id"]),
     SiteRule(hosts: [.domain("vimeo.com")],
              params: ["share"]),
+    SiteRule(hosts: [.domain("play.google.com")],
+             params: ["pcampaignid", "referrer"]),
+    SiteRule(hosts: [.domain("netflix.com")],
+             params: ["trackid", "tctx"]),
+    SiteRule(hosts: [.domain("msn.com")],
+             params: ["ocid", "cvid"]),
+    SiteRule(hosts: [.domain("github.com")],
+             params: ["email_token", "email_source"]),
+    SiteRule(hosts: [.domain("snapchat.com")],
+             params: ["sc_referrer", "sc_ua"]),
+    SiteRule(hosts: [.domain("zillow.com")],
+             params: ["rtoken"]),
+    SiteRule(hosts: [.domain("bestbuy.com")],
+             params: ["acampid", "mpid"]),
+    SiteRule(hosts: [.brand("airbnb")],
+             params: ["federated_search_id", "source_impression_id"]),
+    SiteRule(hosts: [.brand("shopee")],
+             params: ["publish_id", "sp_atk", "xptdk"]),
 ]
