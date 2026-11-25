@@ -1,12 +1,16 @@
 # cleanpaste
 
+[![Homebrew](https://img.shields.io/badge/brew_install-filip--pilar%2Ftap%2Fcleanpaste-FBB040?logo=homebrew&logoColor=white)](#install)
+[![Latest release](https://img.shields.io/github/v/release/filip-pilar/cleanpaste)](https://github.com/filip-pilar/cleanpaste/releases/latest)
+[![macOS 12+](https://img.shields.io/badge/macOS-12%2B-111827?logo=apple&logoColor=white)](#install)
+[![MIT licence](https://img.shields.io/github/license/filip-pilar/cleanpaste)](LICENSE)
+
 **Copy a link, paste a clean one.** A tiny macOS background agent that strips tracking
 parameters from URLs the moment you copy them.
 
-```text
-you copy    https://example.com/article?utm_source=chatgpt.com&id=42&fbclid=abc123
-you paste   https://example.com/article?id=42
-```
+<img src="assets/demo.gif" width="800" alt="A link with tracking parameters is copied from an address bar; the tracking parameters are struck out, and the link is pasted into a message box without them.">
+
+<sub>An illustration of the effect, using URLs from the test cases.</sub>
 
 ## Install
 
