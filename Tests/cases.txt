@@ -1,0 +1,71 @@
+# Rule test cases, one per line. Run ./test.sh to check them.
+#
+#   strip <url> <expected>   the URL must come out as <expected>
+#   keep  <url>              the URL must come out unchanged
+#
+# Every new rule needs a strip case, and a keep case for a look-alike that must survive.
+
+# Generic trackers
+strip https://example.com/?utm_source=x&id=5&utm_medium=y https://example.com/?id=5
+strip https://example.com/?utm_source=x https://example.com/
+strip https://example.com/page?fbclid=abc https://example.com/page
+strip https://example.com/page?fbclid=abc#section https://example.com/page#section
+strip https://example.com?gclid=1&q=hi https://example.com?q=hi
+strip https://example.com/p?mc_cid=1&mc_eid=2&_hsenc=3&mkt_tok=4&k=v https://example.com/p?k=v
+strip https://example.com/p?pk_campaign=a&mtm_source=b&hsa_acc=c https://example.com/p
+
+# What is kept stays byte-for-byte the same
+strip https://example.com/a%20b?x=%2B1&UTM_Source=News&y=a+b https://example.com/a%20b?x=%2B1&y=a+b
+strip https://example.com/?a=1&&b=2&gclid=z https://example.com/?a=1&&b=2
+strip https://example.com/path?flag&utm_campaign=x https://example.com/path?flag
+strip HTTPS://EXAMPLE.COM/?utm_source=x HTTPS://EXAMPLE.COM/
+strip https://user:pw@example.com:8443/p?utm_source=x&k=v https://user:pw@example.com:8443/p?k=v
+strip https://example.com/?utm%5Fsource=x&k=v https://example.com/?k=v
+strip https://example.com/?next=https%3A%2F%2Fa.com%2F%3Futm_source%3Dx&utm_source=y https://example.com/?next=https%3A%2F%2Fa.com%2F%3Futm_source%3Dx
+
+# Site-specific rules
+strip https://youtu.be/dQw4w9WgXcQ?si=abcdef&t=42 https://youtu.be/dQw4w9WgXcQ?t=42
+strip https://www.youtube.com/watch?v=dQw4w9WgXcQ&si=abc&feature=shared https://www.youtube.com/watch?v=dQw4w9WgXcQ
+strip https://music.youtube.com/watch?v=abc&si=xyz https://music.youtube.com/watch?v=abc
+strip https://open.spotify.com/track/abc?si=123 https://open.spotify.com/track/abc
+strip https://x.com/user/status/123?s=20&t=abc https://x.com/user/status/123
+strip https://www.instagram.com/p/abc/?igshid=xyz&img_index=2 https://www.instagram.com/p/abc/?img_index=2
+strip https://www.tiktok.com/@u/video/123?_t=abc&_r=1&is_from_webapp=1 https://www.tiktok.com/@u/video/123
+strip https://www.linkedin.com/posts/abc?trk=public_post&rcm=xyz https://www.linkedin.com/posts/abc
+strip https://www.reddit.com/r/mac/comments/abc/title/?share_id=xyz&utm_name=ios https://www.reddit.com/r/mac/comments/abc/title/
+strip https://www.amazon.com/Some-Product/dp/B08N5WRWNW/ref=sr_1_3?crid=1&qid=1&sr=8-3&th=1 https://www.amazon.com/Some-Product/dp/B08N5WRWNW?th=1
+strip https://www.amazon.co.uk/dp/B08N5WRWNW?pf_rd_r=X&pd_rd_w=Y&psc=1 https://www.amazon.co.uk/dp/B08N5WRWNW?psc=1
+strip https://www.amazon.de/dp/B08N5WRWNW/ref=abc https://www.amazon.de/dp/B08N5WRWNW
+strip https://www.google.com/search?q=swift&sca_esv=1&ei=abc&ved=xyz&oq=swift https://www.google.com/search?q=swift
+strip https://www.google.co.uk/search?q=swift&sxsrf=abc https://www.google.co.uk/search?q=swift
+
+# Referrer values on generic parameters
+strip https://example.com/post?utm_source=chatgpt.com https://example.com/post
+strip https://example.com/post?ref=chatgpt.com&id=7 https://example.com/post?id=7
+strip https://example.com/post?source=Perplexity&id=7 https://example.com/post?id=7
+keep  https://example.com/post?ref=main&source=menu&from=2024-01-01&via=api
+
+# Long Google and Bing URLs
+strip https://www.google.com/search?q=best+mac+apps&sca_esv=abc&rlz=1C5&sxsrf=AE3&ei=xyz&ved=0ah&uact=5&oq=best&gs_lp=Egx&sclient=gws&source=hp&iflsig=AOw&client=safari&udm=14&hl=en&tbm=nws&biw=1440&bih=900&dpr=2&fbs=AII&sstk=Af7&cshid=17&zx=99&no_sw_cr=1&aep=1&ntc=1&mstk=AUt&csuir=1&pccc=1&sei=Q https://www.google.com/search?q=best+mac+apps&udm=14&hl=en&tbm=nws
+strip https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://example.com/page%3Fid%3D1%26utm_source%3Dx&ved=2ah&usg=AOv https://example.com/page?id=1
+strip https://www.google.com/maps/place/Cafe/@37.77,-122.41,17z/data=!3m1!4b1?entry=ttu&g_ep=EgoyMDI0&hl=en https://www.google.com/maps/place/Cafe/@37.77,-122.41,17z/data=!3m1!4b1?hl=en
+strip https://www.bing.com/search?q=mac+apps&form=QBLH&sp=-1&ghc=1&lq=0&pq=mac&sc=10-8&qs=n&sk=&cvid=ABC&FPIG=1&first=11 https://www.bing.com/search?q=mac+apps&first=11
+keep  https://example.com/url?url=https://other.com/&q=1
+
+strip https://x.com/someone/status/1234567890?a=AbCdEf123 https://x.com/someone/status/1234567890
+keep  https://x.com/search?q=swift&src=typed_query&f=live
+
+# Left alone
+keep  https://www.amazon.com/s?keywords=usb+cable
+keep  https://support.apple.com/guide?at=1&ct=2
+keep  https://www.walmart.com/search?q=tv&from=home&athlete=1
+keep  https://example.com/?ref=home&source=menu&share=1&r=2&tag=news&form=a&from=b
+keep  https://example.com/?si=keepme
+keep  https://example.com/search?s=query&t=1
+keep  https://docs.google.com/document/d/abc/edit?usp=sharing&ei=keep
+keep  https://example.com/#/route?utm_source=x
+keep  https://example.com/shop/ref=abc?id=1
+keep  https://example.com/plain
+keep  https://[::1]:8080/?utm_source=x
+keep  mailto:someone@example.com?utm_source=x
+keep  ftp://example.com/?utm_source=x
