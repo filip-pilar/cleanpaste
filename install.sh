@@ -31,10 +31,12 @@ if [ "${1:-}" = "--uninstall" ]; then
   exit 0
 fi
 
-if launchctl print "$domain/homebrew.mxcl.cleanpaste" >/dev/null 2>&1; then
-  echo "cleanpaste is already running from Homebrew. Update it with: brew upgrade cleanpaste" >&2
-  exit 1
-fi
+for brew_label in sh.brew.cleanpaste homebrew.mxcl.cleanpaste; do
+  if launchctl print "$domain/$brew_label" >/dev/null 2>&1; then
+    echo "cleanpaste is already running from Homebrew. Update it with: brew upgrade cleanpaste" >&2
+    exit 1
+  fi
+done
 
 mkdir -p "$(dirname "$bin")" "$(dirname "$plist")"
 here=$(cd "$(dirname "$0")" && pwd)

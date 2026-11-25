@@ -28,7 +28,6 @@ gh release create $tag build/$asset --title $tag --generate-notes
 tap=$(mktemp -d)
 gh repo clone filip-pilar/homebrew-tap $tap -- -q
 sed -i '' -e "s|/download/v[^/]*/|/download/$tag/|" \
-          -e "s|version \"[^\"]*\"|version \"$version\"|" \
           -e "s|sha256 \"[^\"]*\"|sha256 \"$sha\"|" $tap/Formula/cleanpaste.rb
 git -C $tap commit -qam "cleanpaste $version"
 git -C $tap push -q
