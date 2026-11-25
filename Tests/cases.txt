@@ -1,4 +1,5 @@
 # Rule test cases, one per line. Run ./test.sh to check them.
+# A line is split on spaces, so URLs here must not contain any.
 #
 #   strip <url> <expected>   the URL must come out as <expected>
 #   keep  <url>              the URL must come out unchanged

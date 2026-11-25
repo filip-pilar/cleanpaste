@@ -24,7 +24,7 @@ data edits and one command.
    - a `keep` line for a look-alike that must survive (the same name on another site, or a
      functional parameter on the same site).
 
-3. **Run `./test.sh --rules`.** It must end with `rule tests passed`.
+3. **Run `./test.sh`.** It must end with `rule tests passed`.
 
 Do not change `Sources/Cleaner.swift`, `Sources/RuleTypes.swift` or `Sources/main.swift`
 to add a rule. If a tracker cannot be expressed in `Rules.swift`, say so instead of
@@ -60,16 +60,18 @@ whether a parameter is functional, leave it and say so.
 | `Sources/Cleaner.swift` | Applies the rules to one URL string. |
 | `Sources/main.swift` | Watches the clipboard and rewrites it. |
 | `Tests/cases.txt` | Rule test cases. |
-| `Tests/e2e.swift` | Watcher tests on a private pasteboard. |
-| `Tests/live.swift` | Check of the installed agent on the real clipboard. |
+| `Tests/run.swift` | Runs the cases. |
 
 ## Commands
 
-- `./test.sh --rules`: rule cases only, a few seconds.
-- `./test.sh`: rule cases plus the watcher tests. Never touches the real clipboard.
+- `./test.sh`: runs every case in `Tests/cases.txt`. Takes a few seconds and touches
+  nothing outside `build/`.
 - `./install.sh`: rebuild and reload the login agent. This changes the user's machine, so
   run it only when asked.
-- `./measure.sh`: CPU, wakeups and memory of the running agent.
+- `./uninstall.sh`: stop the agent and remove it.
+
+The clipboard watcher in `Sources/main.swift` has no automated test. If you change it,
+say so and ask the user to copy a tracked URL and paste it.
 
 ## Constraints
 

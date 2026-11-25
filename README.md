@@ -49,7 +49,7 @@ The full list is one file: [Sources/Rules.swift](Sources/Rules.swift).
 ## Adding a rule
 
 See [AGENTS.md](AGENTS.md). In short: add the name to `Sources/Rules.swift`, add a case to
-`Tests/cases.txt`, run `./test.sh --rules`, then `./install.sh`.
+`Tests/cases.txt`, run `./test.sh`, then `./install.sh`.
 
 ## Licence
 

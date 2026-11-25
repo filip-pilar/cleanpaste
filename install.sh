@@ -9,8 +9,8 @@ bin="$HOME/.local/bin/clipclean"
 plist="$HOME/Library/LaunchAgents/$label.plist"
 domain="gui/$(id -u)"
 
-./build.sh
-mkdir -p "${bin:h}" "${plist:h}"
+mkdir -p build "${bin:h}" "${plist:h}"
+swiftc -O -wmo -Xlinker -dead_strip Sources/*.swift -o build/clipclean
 
 # Stop a running copy before replacing it.
 if launchctl print "$domain/$label" &>/dev/null; then

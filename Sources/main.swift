@@ -122,15 +122,6 @@ final class Watcher {
     }
 }
 
-// CLIPCLEAN_PASTEBOARD points the watcher at a private pasteboard so the tests
-// never touch the real clipboard.
-let pasteboard: NSPasteboard
-if let name = ProcessInfo.processInfo.environment["CLIPCLEAN_PASTEBOARD"], !name.isEmpty {
-    pasteboard = NSPasteboard(name: NSPasteboard.Name(name))
-} else {
-    pasteboard = .general
-}
-
-let watcher = Watcher(pasteboard: pasteboard)
+let watcher = Watcher(pasteboard: .general)
 watcher.start()
 dispatchMain()
