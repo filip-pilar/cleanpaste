@@ -1,4 +1,4 @@
-// clipclean: strips tracking parameters from a URL as soon as it lands on the clipboard.
+// cleanpaste: strips tracking parameters from a URL as soon as it lands on the clipboard.
 //
 // macOS has no "clipboard changed" notification, so watching means polling the
 // pasteboard's change counter. Reading the counter is a round trip to the system
@@ -38,7 +38,7 @@ final class Watcher {
     private let pasteboard: NSPasteboard
     // Default priority on purpose: a tick costs tens of microseconds either way, and on a
     // heavily loaded Mac .utility made ticks up to 170 ms late.
-    private let queue = DispatchQueue(label: "clipclean.poll", qos: .default)
+    private let queue = DispatchQueue(label: "cleanpaste.poll", qos: .default)
     private let timer: DispatchSourceTimer
     private var lastChange: Int
     private var idle = false

@@ -1,4 +1,4 @@
-// THE RULES. This file is data only: every tracking parameter clipclean removes is
+// THE RULES. This file is data only: every tracking parameter cleanpaste removes is
 // listed here and nowhere else. See AGENTS.md for how to add one.
 //
 // All names are matched case-insensitively, so write them in lowercase.

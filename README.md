@@ -1,4 +1,4 @@
-# clipclean
+# cleanpaste
 
 **Copy a link, paste a clean one.** A tiny macOS background agent that strips tracking
 parameters from URLs the moment you copy them.
@@ -8,38 +8,47 @@ you copy    https://example.com/article?utm_source=chatgpt.com&id=42&fbclid=abc1
 you paste   https://example.com/article?id=42
 ```
 
-## Set it up with your agent
+## Install
+
+With [Homebrew](https://brew.sh):
+
+```bash
+brew install filip-pilar/tap/cleanpaste && brew services start cleanpaste
+```
+
+Or without Homebrew:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/filip-pilar/cleanpaste/main/install.sh | sh
+```
+
+Works on macOS 12 or later, on Apple Silicon and Intel. macOS will show a "Background
+Items Added" notification: that is cleanpaste starting at login.
+
+| | Homebrew | curl |
+|---|---|---|
+| Update | `brew upgrade cleanpaste` | run the same line again |
+| Remove | `brew services stop cleanpaste && brew uninstall cleanpaste` | add `-s -- --uninstall` after `sh` |
+
+Use one or the other. The curl installer refuses to run over a Homebrew install.
+
+### Or have your agent do it
 
 Paste this into Claude Code, Codex, Cursor or any coding agent on your Mac:
 
 ```text
-Set up clipclean on this Mac. It is a small macOS login agent that strips tracking
-parameters from URLs when I copy them.
+Install cleanpaste on this Mac: https://github.com/filip-pilar/cleanpaste
+It is a small login agent that strips tracking parameters from links when I copy them.
 
-1. Clone https://github.com/filip-pilar/clipclean into a folder where I keep code.
-2. Read AGENTS.md and install.sh so you know what will be installed before running anything.
-3. Run ./test.sh and confirm it ends with "rule tests passed".
-4. Run ./install.sh. It builds the binary into ~/.local/bin/clipclean and adds a login
-   agent at ~/Library/LaunchAgents/local.clipclean.plist.
-5. Confirm the agent is running with: pgrep -lx clipclean
-6. Tell me what was installed and how to remove it (./uninstall.sh).
+1. Read the README and install.sh so you know what gets installed.
+2. If Homebrew is installed, run:
+   brew install filip-pilar/tap/cleanpaste && brew services start cleanpaste
+   Otherwise run the curl installer from the README.
+3. Confirm it is running with: pgrep -lx cleanpaste
+4. Tell me how to update and remove it.
 
 Then ask me to copy a link with tracking parameters and paste it, to check it works.
 ```
-
-## Or install it yourself
-
-Needs macOS and the Xcode command line tools (`xcode-select --install`).
-
-```bash
-git clone https://github.com/filip-pilar/clipclean.git
-```
-
-```bash
-cd clipclean && ./install.sh
-```
-
-Remove it with `./uninstall.sh`.
 
 ## What it cleans
 
@@ -63,7 +72,7 @@ The complete list is one file: [Sources/Rules.swift](Sources/Rules.swift).
 
 ## Footprint
 
-- Native Swift, about 120 KB, no dependencies.
+- Native Swift, about 290 KB for both Apple Silicon and Intel, no dependencies.
 - Around 0.02 to 0.03% of one CPU core while you use the Mac, less when you are away.
 - About 3 MB of memory.
 - No network access, no logging, nothing written to disk.
@@ -72,7 +81,7 @@ The complete list is one file: [Sources/Rules.swift](Sources/Rules.swift).
 
 - **There is a short delay.** A copy is cleaned about 0.1 to 0.25 seconds after you make
   it; paste faster and you get the original. macOS has no clipboard-change event, so
-  clipclean has to poll.
+  cleanpaste has to poll.
 - **Only a lone URL is rewritten.** Text that merely contains a link is left alone, and a
   cleaned link becomes plain text.
 - **It works from a list.** A tracker it has never seen stays in.
@@ -84,12 +93,15 @@ The complete list is one file: [Sources/Rules.swift](Sources/Rules.swift).
 Give your agent the URL:
 
 ```text
-In the clipclean repo, this copied URL kept its tracking parameters: <paste URL>
-Follow AGENTS.md to add a rule for it, run ./test.sh, then ./install.sh.
+Clone https://github.com/filip-pilar/cleanpaste. This copied URL kept its tracking
+parameters: <paste URL>
+Follow AGENTS.md to add a rule for it and run ./test.sh. Then open a pull request,
+or run ./install.sh to use the change on this Mac now.
 ```
 
 The repo is laid out for this: rules are data in one file, test cases are data in another,
-and [AGENTS.md](AGENTS.md) is the procedure.
+and [AGENTS.md](AGENTS.md) is the procedure. Building from source needs the Xcode command
+line tools (`xcode-select --install`).
 
 ## Licence
 

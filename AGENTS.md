@@ -1,6 +1,6 @@
-# Working on clipclean
+# Working on cleanpaste
 
-clipclean is a macOS login agent that strips tracking parameters from a URL the moment it
+cleanpaste is a macOS login agent that strips tracking parameters from a URL the moment it
 is copied. Almost every change to this repo is "add a tracking parameter". That takes two
 data edits and one command.
 
@@ -66,12 +66,28 @@ whether a parameter is functional, leave it and say so.
 
 - `./test.sh`: runs every case in `Tests/cases.txt`. Takes a few seconds and touches
   nothing outside `build/`.
-- `./install.sh`: rebuild and reload the login agent. This changes the user's machine, so
-  run it only when asked.
-- `./uninstall.sh`: stop the agent and remove it.
+- `./install.sh`: inside a checkout, builds from source and reloads the login agent so
+  rule changes take effect. This changes the user's machine, so run it only when asked.
+  It refuses to run if cleanpaste is installed through Homebrew.
+- `./install.sh --uninstall`: stop the agent and remove it.
+- `./release.sh <version>`: publish a release. Maintainer only; see below.
 
 The clipboard watcher in `Sources/main.swift` has no automated test. If you change it,
 say so and ask the user to copy a tracked URL and paste it.
+
+## Releasing
+
+Rule changes reach users only through a release.
+
+1. Commit the change on `main`.
+2. Run `./release.sh <version>`, bumping the last number for rule changes (`0.1.0` to
+   `0.1.1`).
+
+The script runs the tests, builds a universal binary for macOS 12 and later, tags the
+commit, creates the GitHub release and updates `Formula/cleanpaste.rb` in
+`filip-pilar/homebrew-tap`. Users then update with `brew upgrade cleanpaste` or by
+running the curl installer again. Publishing is visible to everyone, so do it only when
+the user asks.
 
 ## Constraints
 

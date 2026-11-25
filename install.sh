@@ -1,25 +1,53 @@
-#!/bin/zsh
-# Builds clipclean and installs it as a login agent for your user account.
-# Safe to run again after editing Sources/Rules.swift: it rebuilds and reloads.
-set -euo pipefail
-cd "${0:A:h}"
+#!/bin/sh
+# Installs, updates or removes cleanpaste as a login agent for your user account.
+#
+#   curl -fsSL https://raw.githubusercontent.com/filip-pilar/cleanpaste/main/install.sh | sh
+#       install the latest release, or update to it
+#   curl -fsSL https://raw.githubusercontent.com/filip-pilar/cleanpaste/main/install.sh | sh -s -- --uninstall
+#       remove it
+#   ./install.sh    run inside a checkout: build from source instead (after editing rules)
+set -eu
 
-label=local.clipclean
-bin="$HOME/.local/bin/clipclean"
+repo=filip-pilar/cleanpaste
+asset=cleanpaste-macos-universal
+label=local.cleanpaste
+bin="$HOME/.local/bin/cleanpaste"
 plist="$HOME/Library/LaunchAgents/$label.plist"
 domain="gui/$(id -u)"
 
-mkdir -p build "${bin:h}" "${plist:h}"
-swiftc -O -wmo -Xlinker -dead_strip Sources/*.swift -o build/clipclean
+stop() {
+  if launchctl print "$domain/$label" >/dev/null 2>&1; then
+    launchctl bootout "$domain/$label" 2>/dev/null || true
+    while launchctl print "$domain/$label" >/dev/null 2>&1; do sleep 0.1; done
+  fi
+}
 
-# Stop a running copy before replacing it.
-if launchctl print "$domain/$label" &>/dev/null; then
-  launchctl bootout "$domain/$label" || true
-  while launchctl print "$domain/$label" &>/dev/null; do sleep 0.1; done
+if [ "${1:-}" = "--uninstall" ]; then
+  stop
+  for file in "$plist" "$bin"; do
+    if [ -e "$file" ]; then rm "$file"; fi
+  done
+  echo "cleanpaste removed."
+  exit 0
 fi
 
-# Copy under a temporary name, then rename, so the binary is swapped in one step.
-cp build/clipclean "$bin.new"
+if launchctl print "$domain/homebrew.mxcl.cleanpaste" >/dev/null 2>&1; then
+  echo "cleanpaste is already running from Homebrew. Update it with: brew upgrade cleanpaste" >&2
+  exit 1
+fi
+
+mkdir -p "$(dirname "$bin")" "$(dirname "$plist")"
+here=$(cd "$(dirname "$0")" && pwd)
+if [ -f "$here/Sources/main.swift" ]; then
+  echo "Building from source in $here"
+  swiftc -O -wmo -Xlinker -dead_strip "$here"/Sources/*.swift -o "$bin.new"
+else
+  echo "Downloading the latest release"
+  curl -fsSL "https://github.com/$repo/releases/latest/download/$asset" -o "$bin.new"
+  chmod 755 "$bin.new"
+fi
+
+stop
 mv -f "$bin.new" "$bin"
 
 cat > "$plist" <<EOF
@@ -47,7 +75,6 @@ cat > "$plist" <<EOF
 EOF
 
 launchctl bootstrap "$domain" "$plist"
-echo "clipclean is running and will start at every login."
-echo "  binary  $bin"
-echo "  agent   $plist"
-echo "Remove it with ./uninstall.sh"
+echo "cleanpaste is running and starts at every login."
+echo "  update  run the same command again"
+echo "  remove  add: sh -s -- --uninstall"
