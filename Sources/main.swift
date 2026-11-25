@@ -22,6 +22,11 @@ let idleAfter: CFTimeInterval = 60
 let recentInput: CFTimeInterval = 2
 let quietQueryEvery = 5
 
+// Every `upgradeCheckEvery` ticks (10 s in use, 50 s idle) the agent checks whether its
+// launch path now resolves to a different file, which is what `brew upgrade` does. If so it
+// exits with an error, and launchd starts the new version.
+let upgradeCheckEvery = 50
+
 /// Markers that password managers and text expanders put on copies that must be left alone.
 let untouchableTypes: Set<String> = [
     "org.nspasteboard.ConcealedType",
@@ -31,6 +36,13 @@ let untouchableTypes: Set<String> = [
     "de.petermaurer.TransientPasteboardType",
     "Pasteboard generator type",
 ]
+
+/// The file a path points to once symlinks are resolved, or nil if it is gone.
+func resolvedPath(_ path: String) -> String? {
+    guard let resolved = realpath(path, nil) else { return nil }
+    defer { free(resolved) }
+    return String(cString: resolved)
+}
 
 let urlNameType = NSPasteboard.PasteboardType("public.url-name")
 
@@ -47,6 +59,9 @@ final class Watcher {
     private var attemptsLeft = 0
     /// Starts full so the first tick queries the clipboard straight away.
     private var ticksSinceQuery = quietQueryEvery
+    private var ticksSinceUpgradeCheck = 0
+    private let launchPath = CommandLine.arguments[0]
+    private lazy var runningBinary = resolvedPath(launchPath)
     private let anyInput = CGEventType(rawValue: ~0)!
 
     init(pasteboard: NSPasteboard) {
@@ -58,6 +73,7 @@ final class Watcher {
     }
 
     func start() {
+        _ = runningBinary
         // Pay the one-time setup costs now instead of on the first copy.
         _ = cleanURL("https://example.com/?utm_source=warmup")
         _ = pasteboard.types
@@ -79,6 +95,11 @@ final class Watcher {
         if idle || sinceInput < recentInput || ticksSinceQuery >= quietQueryEvery || attemptsLeft > 0 {
             ticksSinceQuery = 0
             queryClipboard()
+        }
+        ticksSinceUpgradeCheck += 1
+        if ticksSinceUpgradeCheck >= upgradeCheckEvery {
+            ticksSinceUpgradeCheck = 0
+            if resolvedPath(launchPath) != runningBinary { exit(1) }
         }
         let quiet = sinceInput > idleAfter
         if quiet != idle {

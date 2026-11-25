@@ -31,7 +31,7 @@ Items Added" notification: that is cleanpaste starting at login.
 
 | | Homebrew | curl |
 |---|---|---|
-| Update | `brew upgrade cleanpaste` | run the same line again |
+| Update | `brew upgrade cleanpaste` (the running copy switches over within a minute) | run the same line again |
 | Remove | `brew services stop cleanpaste && brew uninstall cleanpaste` | add `-s -- --uninstall` after `sh` |
 
 Use one or the other. The curl installer refuses to run over a Homebrew install.
