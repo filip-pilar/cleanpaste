@@ -116,25 +116,35 @@ final class Watcher {
         }
         if attemptsLeft > 0 {
             attemptsLeft -= 1
-            if autoreleasepool(invoking: { cleanClipboard(at: change) }) { attemptsLeft = 0 }
+            switch autoreleasepool(invoking: { cleanClipboard(at: change) }) {
+            case .retry: break
+            case .done: attemptsLeft = 0
+            // A copy that lands within a millisecond of our own write can share its change
+            // count, so it would look like ours and be skipped. Read the clipboard once more
+            // on the next tick: our own clean link is left alone, anything else gets cleaned.
+            case .rewrote: attemptsLeft = 1
+            }
         }
     }
 
-    /// Returns false only when the copy's data has not arrived yet and is worth a retry.
-    private func cleanClipboard(at change: Int) -> Bool {
-        guard let types = pasteboard.types, !types.isEmpty else { return false }
+    private enum Outcome { case retry, done, rewrote }
+
+    /// `.retry` when the copy's data has not arrived yet, `.rewrote` when the clipboard was
+    /// cleaned, `.done` otherwise.
+    private func cleanClipboard(at change: Int) -> Outcome {
+        guard let types = pasteboard.types, !types.isEmpty else { return .retry }
         guard types.contains(.string),
               !types.contains(where: { untouchableTypes.contains($0.rawValue) })
-        else { return true }
-        guard let text = pasteboard.string(forType: .string) else { return false }
-        guard let cleaned = cleanURL(text) else { return true }
+        else { return .done }
+        guard let text = pasteboard.string(forType: .string) else { return .retry }
+        guard let cleaned = cleanURL(text) else { return .done }
 
         // Carry over the link title if the copy had one, then replace everything else:
         // the other representations (HTML, RTF, URL) all still hold the tracked URL.
         let title = types.contains(urlNameType) ? pasteboard.string(forType: urlNameType) : nil
 
         // Something else was copied while we were working: leave it for the next tick.
-        guard pasteboard.changeCount == change else { return true }
+        guard pasteboard.changeCount == change else { return .done }
 
         // clearContents + setString is the fastest pair of calls (about 10x quicker than
         // declareTypes), which keeps the moment the clipboard is empty as short as possible.
@@ -142,7 +152,7 @@ final class Watcher {
         pasteboard.setString(cleaned, forType: .string)
         if types.contains(.URL) { pasteboard.setString(cleaned, forType: .URL) }
         if let title { pasteboard.setString(title, forType: urlNameType) }
-        return true
+        return .rewrote
     }
 }
 
