@@ -5,8 +5,8 @@
 [![macOS 12+](https://img.shields.io/badge/macOS-12%2B-111827?logo=apple&logoColor=white)](#install)
 [![MIT licence](https://img.shields.io/github/license/filip-pilar/cleanpaste)](LICENSE)
 
-**Copy a link, paste a clean one.** A tiny macOS background agent that strips tracking
-parameters from URLs the moment you copy them.
+**Copy a link, paste a clean one.** A tiny free Mac utility that removes tracking IDs
+from every link you copy. It runs quietly in the background.
 
 <img src="assets/demo.gif" width="800" alt="A link with tracking parameters is copied from an address bar; the tracking parameters are struck out, and the link is pasted into a message box without them.">
 
@@ -42,7 +42,7 @@ Paste this into Claude Code, Codex, Cursor or any coding agent on your Mac:
 
 ```text
 Install cleanpaste on this Mac: https://github.com/filip-pilar/cleanpaste
-It is a small login agent that strips tracking parameters from links when I copy them.
+It is a small background utility that removes tracking IDs from links when I copy them.
 
 1. Read the README and install.sh so you know what gets installed.
 2. If Homebrew is installed, run:
